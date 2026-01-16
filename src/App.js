@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase";
 
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Logout from "./pages/Logout";
@@ -106,6 +109,15 @@ function App() {
         />
 
       </Routes>
+
+      {/* ================= TOAST CONTAINER (must be inside App JSX) ================= */}
+      <ToastContainer
+        position="top-right"
+        autoClose={2500}
+        pauseOnHover
+        closeOnClick
+        theme="colored"
+      />
 
     </BrowserRouter>
   );

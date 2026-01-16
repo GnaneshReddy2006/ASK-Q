@@ -1,9 +1,11 @@
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
+import { toast } from "react-toastify";
 
 function Logout() {
   const handleLogout = async () => {
     await signOut(auth);
+    toast.info("Logged out");
   };
 
   return (

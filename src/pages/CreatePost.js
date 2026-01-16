@@ -3,6 +3,7 @@ import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
 import { getAuth } from "firebase/auth";
 import { supabase } from "../supabase";
+import { toast } from "react-toastify";
 
 function CreatePost() {
   const [title, setTitle] = useState("");
@@ -14,7 +15,7 @@ function CreatePost() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!user) return alert("Login required");
+    if (!user) return toast.error("Login required");
 
     setLoading(true);
 
@@ -37,7 +38,7 @@ function CreatePost() {
           .getPublicUrl(fileName);
 
         fileUrl = data.publicUrl;
-        fileType = file.type; // e.g. video/mp4
+        fileType = file.type;
       }
 
       await addDoc(collection(db, "posts"), {
@@ -52,10 +53,11 @@ function CreatePost() {
       setTitle("");
       setDescription("");
       setFile(null);
-      alert("Post created ✅");
+
+      toast.success("Post created successfully 🎉");
     } catch (err) {
       console.error(err);
-      alert("Post failed ❌");
+      toast.error("Post failed to upload ❌");
     }
 
     setLoading(false);
@@ -81,7 +83,6 @@ function CreatePost() {
             onChange={(e) => setDescription(e.target.value)}
           />
 
-          {/* ✅ Accept videos also */}
           <input
             type="file"
             accept="image/*,video/*,application/pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx"

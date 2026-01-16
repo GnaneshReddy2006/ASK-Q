@@ -2,6 +2,7 @@ import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 function Login() {
   const navigate = useNavigate();
@@ -12,7 +13,7 @@ function Login() {
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
-      alert("Please enter email and password");
+      toast.warning("Please enter email and password");
       return;
     }
 
@@ -20,9 +21,10 @@ function Login() {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate("/posts"); // ✅ redirect after login
+      toast.success("Login successful 🎉");
+      navigate("/posts");
     } catch (error) {
-      alert(error.message);
+      toast.error(error.message);
     }
 
     setLoading(false);

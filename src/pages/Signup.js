@@ -2,6 +2,7 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../firebase";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 function Signup() {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ function Signup() {
     const emailPattern = /^[0-9]{3}g[0-9]a[0-9]{4}@srit\.ac\.in$/;
 
     if (!emailPattern.test(email)) {
-      alert("Only SRIT college email allowed");
+      toast.error("Only SRIT college email allowed");
       return;
     }
 
@@ -31,13 +32,11 @@ function Signup() {
         createdAt: serverTimestamp()
       });
 
-      alert("Signup successful 🎉");
-
-      // 🔥 Redirect user to CreatePost page
+      toast.success("Signup successful 🎉");
       navigate("/create");
 
     } catch (error) {
-      alert(error.message);
+      toast.error(error.message);
     }
   };
 

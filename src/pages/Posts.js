@@ -13,6 +13,7 @@ import { useEffect, useState, useCallback } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../firebase";
 import { supabase } from "../supabase";
+import { toast } from "react-toastify";
 
 function Posts() {
   const [user, setUser] = useState(null);
@@ -28,12 +29,12 @@ function Posts() {
   const [yearFilter, setYearFilter] = useState("All");
   const [searchText, setSearchText] = useState("");
 
-  /* ================= AUTH ================= */
+  /* AUTH */
   useEffect(() => {
     return onAuthStateChanged(auth, setUser);
   }, []);
 
-  /* ================= LIKES ================= */
+  /* LIKES */
   const fetchLikes = async () => {
     const snap = await getDocs(collection(db, "likes"));
     const count = {};
@@ -44,7 +45,7 @@ function Posts() {
     setLikes(count);
   };
 
-  /* ================= COMMENTS ================= */
+  /* COMMENTS */
   const fetchComments = async (postId) => {
     const q = query(collection(db, "comments"), where("postId", "==", postId));
     const snap = await getDocs(q);
@@ -54,7 +55,7 @@ function Posts() {
     }));
   };
 
-  /* ================= FETCH POSTS ================= */
+  /* POSTS */
   const fetchAllPosts = useCallback(async () => {
     const snap = await getDocs(collection(db, "posts"));
     const postList = [];
@@ -87,7 +88,7 @@ function Posts() {
     fetchAllPosts();
   }, [fetchAllPosts]);
 
-  /* ================= FILTER LOGIC ================= */
+  /* FILTERS */
   useEffect(() => {
     let updated = [...posts];
 
@@ -110,7 +111,7 @@ function Posts() {
     setFilteredPosts(updated);
   }, [branchFilter, yearFilter, searchText, posts]);
 
-  /* ================= DELETE POST ================= */
+  /* DELETE */
   const deletePost = async (postId, fileUrl) => {
     const ok = window.confirm("Delete this post?");
     if (!ok) return;
@@ -122,19 +123,20 @@ function Posts() {
       }
 
       await deleteDoc(doc(db, "posts", postId));
+
       setPosts((prev) => prev.filter((p) => p.id !== postId));
       setFilteredPosts((prev) => prev.filter((p) => p.id !== postId));
 
-      alert("Post deleted ✔️");
+      toast.success("Post deleted ✔️");
     } catch (err) {
       console.error(err);
-      alert("Deletion failed ❌");
+      toast.error("Failed to delete post ❌");
     }
   };
 
-  /* ================= LIKE ================= */
+  /* LIKE */
   const toggleLike = async (postId) => {
-    if (!user) return alert("Login required");
+    if (!user) return toast.error("Login required");
 
     const qLike = query(
       collection(db, "likes"),
@@ -156,7 +158,7 @@ function Posts() {
     }
   };
 
-  /* ================= ADD COMMENT ================= */
+  /* COMMENT */
   const addComment = async (postId) => {
     if (!user || !newComment[postId]?.trim()) return;
 
@@ -171,7 +173,6 @@ function Posts() {
     fetchComments(postId);
   };
 
-  /* ================= UI ================= */
   return (
     <div className="posts-container">
       <h2>All Posts</h2>
@@ -212,12 +213,10 @@ function Posts() {
           <p>{post.description}</p>
           <p><strong>{post.userBranch}</strong> | Year {post.userYear}</p>
 
-          {/* 🖼 IMAGE */}
           {post.fileType?.startsWith("image") && (
             <img src={post.fileUrl} alt="post" />
           )}
 
-          {/* 🎥 VIDEO */}
           {post.fileType?.startsWith("video") && (
             <video
               src={post.fileUrl}
@@ -226,7 +225,6 @@ function Posts() {
             />
           )}
 
-          {/* 📄 PDF */}
           {post.fileType === "application/pdf" && (
             <div style={{ marginTop: "8px" }}>
               <a href={post.fileUrl} target="_blank" rel="noreferrer">📄 View PDF</a><br />
@@ -234,17 +232,15 @@ function Posts() {
             </div>
           )}
 
-          {/* 📁 OTHER FILES */}
-          {post.fileUrl &&
-            !post.fileType?.startsWith("image") &&
+          {!post.fileType?.startsWith("image") &&
             !post.fileType?.startsWith("video") &&
-            post.fileType !== "application/pdf" && (
+            post.fileType !== "application/pdf" &&
+            post.fileUrl && (
               <div style={{ marginTop: "8px" }}>
                 <a href={post.fileUrl} download>⬇️ Download File</a>
               </div>
             )}
 
-          {/* LIKE + DELETE */}
           <div style={{ marginTop: "12px", display: "flex", alignItems: "center" }}>
             <button onClick={() => toggleLike(post.id)}>❤️ {likes[post.id] || 0}</button>
 
@@ -255,7 +251,6 @@ function Posts() {
             )}
           </div>
 
-          {/* COMMENTS */}
           <div className="comment-box">
             <input
               className="comment-input"
