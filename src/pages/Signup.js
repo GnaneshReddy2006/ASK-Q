@@ -61,7 +61,7 @@ function Signup() {
         />
 
         <input id="password" required type="password" placeholder="Password" />
-        <input id="year" required placeholder="Year" />
+        <input id="year" required placeholder="Year of Study" />
         <input id="branch" required placeholder="Branch" />
 
         <button onClick={handleSignup}>Signup</button>
