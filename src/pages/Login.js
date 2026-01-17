@@ -20,11 +20,11 @@ function Login() {
     setLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      await signInWithEmailAndPassword(auth, email.toLowerCase(), password);
       toast.success("Login successful 🎉");
       navigate("/posts");
     } catch (error) {
-      toast.error("invalid mail or password");
+      toast.error("Invalid mail or password");
     }
 
     setLoading(false);
@@ -52,13 +52,13 @@ function Login() {
         <button onClick={handleLogin} disabled={loading}>
           {loading ? "Logging in..." : "Login"}
         </button>
-        <p
-  onClick={() => navigate("/forgot-password")}
-  style={{ color: "blue", cursor: "pointer", marginTop: "10px" }}
->
-  Forgot Password?
-</p>
 
+        <p
+          onClick={() => navigate("/forgot-password")}
+          style={{ color: "blue", cursor: "pointer", marginTop: "10px" }}
+        >
+          Forgot Password?
+        </p>
       </div>
     </div>
   );
