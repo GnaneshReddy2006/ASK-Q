@@ -3,11 +3,10 @@ import {
   getDocs,
   query,
   where,
-  addDoc,
   deleteDoc,
   doc,
   getDoc,
-  serverTimestamp
+  updateDoc
 } from "firebase/firestore";
 import { useEffect, useState, useCallback } from "react";
 import { onAuthStateChanged } from "firebase/auth";
@@ -20,7 +19,6 @@ function Posts() {
   const [posts, setPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
 
-  const [likes, setLikes] = useState({});
   const [comments, setComments] = useState({});
   const [newComment, setNewComment] = useState({});
   const [textPreview, setTextPreview] = useState({});
@@ -29,12 +27,11 @@ function Posts() {
   const [yearFilter, setYearFilter] = useState("All");
   const [searchText, setSearchText] = useState("");
 
-  /* AUTH */
   useEffect(() => {
     return onAuthStateChanged(auth, setUser);
   }, []);
 
-  /* LOAD TXT FILE */
+  /* LOAD TEXT FILE */
   const loadTextFile = async (postId, fileUrl) => {
     try {
       const res = await fetch(fileUrl);
@@ -49,31 +46,38 @@ function Posts() {
     }
   };
 
-  /* LIKE */
-  const toggleLike = async (postId) => {
+  /* LIKE SYSTEM — FIXED */
+  const toggleLike = async (postId, currentLikes = []) => {
     if (!user) return toast.error("Login required");
 
-    const qLike = query(
-      collection(db, "likes"),
-      where("postId", "==", postId),
-      where("userId", "==", user.uid)
+    const postRef = doc(db, "posts", postId);
+    const userId = user.uid;
+
+    const hasLiked = currentLikes.includes(userId);
+    const updatedLikes = hasLiked
+      ? currentLikes.filter((id) => id !== userId)
+      : [...currentLikes, userId];
+
+    await updateDoc(postRef, { likes: updatedLikes });
+
+    setPosts((prev) =>
+      prev.map((post) =>
+        post.id === postId ? { ...post, likes: updatedLikes } : post
+      )
     );
-
-    const snap = await getDocs(qLike);
-
-    if (!snap.empty) {
-      snap.forEach((d) => deleteDoc(doc(db, "likes", d.id)));
-      setLikes((p) => ({ ...p, [postId]: Math.max((p[postId] || 1) - 1, 0) }));
-    } else {
-      await addDoc(collection(db, "likes"), { postId, userId: user.uid });
-      setLikes((p) => ({ ...p, [postId]: (p[postId] || 0) + 1 }));
-    }
+    setFilteredPosts((prev) =>
+      prev.map((post) =>
+        post.id === postId ? { ...post, likes: updatedLikes } : post
+      )
+    );
   };
 
   /* COMMENTS */
   const fetchComments = async (postId) => {
-    const q = query(collection(db, "comments"), where("postId", "==", postId));
-    const snap = await getDocs(q);
+    const snap = await getDocs(
+      query(collection(db, "comments"), where("postId", "==", postId))
+    );
+
     setComments((p) => ({
       ...p,
       [postId]: snap.docs.map((d) => d.data())
@@ -87,7 +91,7 @@ function Posts() {
       postId,
       userId: user.uid,
       text: newComment[postId],
-      createdAt: serverTimestamp()
+      createdAt: new Date()
     });
 
     setNewComment((p) => ({ ...p, [postId]: "" }));
@@ -102,6 +106,8 @@ function Posts() {
     for (const d of snap.docs) {
       const post = { id: d.id, ...d.data() };
 
+      if (!Array.isArray(post.likes)) post.likes = []; // FIX
+
       if (post.userId) {
         const uSnap = await getDoc(doc(db, "users", post.userId));
         const u = uSnap.exists() ? uSnap.data() : {};
@@ -110,13 +116,13 @@ function Posts() {
       }
 
       list.push(post);
+      fetchComments(post.id);
     }
 
     list.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+
     setPosts(list);
     setFilteredPosts(list);
-
-    list.forEach((p) => fetchComments(p.id));
   }, []);
 
   useEffect(() => {
@@ -126,14 +132,20 @@ function Posts() {
   /* FILTER */
   useEffect(() => {
     let u = [...posts];
-    if (branchFilter !== "All") u = u.filter((p) => p.userBranch === branchFilter);
-    if (yearFilter !== "All") u = u.filter((p) => String(p.userYear) === yearFilter);
+
+    if (branchFilter !== "All")
+      u = u.filter((p) => p.userBranch === branchFilter);
+
+    if (yearFilter !== "All")
+      u = u.filter((p) => String(p.userYear) === yearFilter);
+
     if (searchText)
       u = u.filter(
         (p) =>
           p.title.toLowerCase().includes(searchText.toLowerCase()) ||
           p.description.toLowerCase().includes(searchText.toLowerCase())
       );
+
     setFilteredPosts(u);
   }, [branchFilter, yearFilter, searchText, posts]);
 
@@ -196,19 +208,19 @@ function Posts() {
         <div className="post-card" key={post.id}>
           <h3>{post.title}</h3>
           <p>{post.description}</p>
-          <p >
+          <p>
             <strong>{post.userBranch}</strong> | Year {post.userYear}
           </p>
 
           {/* IMAGE */}
-          {post.fileType?.startsWith("image") && <img src={post.fileUrl} alt="" />} 
+          {post.fileType?.startsWith("image") && <img src={post.fileUrl} alt="" />}
 
-          {/* VIDEO - FIXED */}
+          {/* VIDEO */}
           {post.fileType?.startsWith("video") && (
             <div className="video-wrapper">
-              <video src={post.fileUrl} controls preload="metadata" /> 
-            </div> 
-          ) } 
+              <video src={post.fileUrl} controls preload="metadata" />
+            </div>
+          )}
 
           {/* PDF */}
           {post.fileType === "application/pdf" && (
@@ -227,7 +239,7 @@ function Posts() {
           {post.fileType === "text/plain" && (
             <>
               <button onClick={() => loadTextFile(post.id, post.fileUrl)}>📃 View Text</button>
-              <a href={post.fileUrl} download>⬇️ Download TXT</a> 
+              <a href={post.fileUrl} download>⬇️ Download TXT</a>
 
               {textPreview[post.id] && (
                 <pre className="text-preview-box">{textPreview[post.id]}</pre>
@@ -240,25 +252,31 @@ function Posts() {
             !post.fileType?.startsWith("video") &&
             post.fileType !== "application/pdf" &&
             post.fileType !== "text/plain" &&
-            post.fileUrl && <a href={post.fileUrl} download>⬇️ Download File</a>} <br></br> <br></br>
+            post.fileUrl && <a href={post.fileUrl} download>⬇️ Download File</a>}
 
-          {/* LIKE + DELETE */}
-          <div className="post-actions">
-            <button onClick={() => toggleLike(post.id)}>❤️ {likes[post.id] || 0}</button>
+          {/* LIKE BUTTON */}
+          <button
+            className="like-button"
+            onClick={() => toggleLike(post.id, post.likes)}
+          >
+            ❤️ {post.likes?.length || 0}
+          </button>
 
-            {user?.uid === post.userId && (
-              <button className="delete-btn" onClick={() => deletePost(post.id, post.fileUrl)}>
-                Delete
-              </button>
-            )}
-          </div>
+          {/* DELETE ONLY BY OWNER */}
+          {user?.uid === post.userId && (
+            <button className="delete-btn" onClick={() => deletePost(post.id, post.fileUrl)}>
+              Delete
+            </button>
+          )}
 
           {/* COMMENTS */}
           <div className="comment-box">
             <input
               placeholder="comment.."
               value={newComment[post.id] || ""}
-              onChange={(e) => setNewComment((p) => ({ ...p, [post.id]: e.target.value }))}
+              onChange={(e) =>
+                setNewComment((p) => ({ ...p, [post.id]: e.target.value }))
+              }
             />
             <button onClick={() => addComment(post.id)}>Send</button>
           </div>
