@@ -244,7 +244,7 @@ function Posts() {
 
           {/* LIKE + DELETE */}
           <div className="post-actions">
-            <button onClick={() => toggleLike(post.id)}>❤️ {likes[post.id] || 0}</button>
+{ /*<button onClick={() => toggleLike(post.id)}>❤️ {likes[post.id] || 0}</button> */}
 
             {user?.uid === post.userId && (
               <button className="delete-btn" onClick={() => deletePost(post.id, post.fileUrl)}>
