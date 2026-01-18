@@ -50,6 +50,7 @@ function CreatePost() {
         fileUrl,
         fileType,
         userId: user.uid,
+        likes: [], // <-- ADDED HERE
         createdAt: serverTimestamp()
       });
 
@@ -97,7 +98,6 @@ function CreatePost() {
             onChange={(e) => setDescription(e.target.value)}
           />
 
-          {/* 🔥 ALL FILE TYPES */}
           <input
             type="file"
             accept="*/*"
