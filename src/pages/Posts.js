@@ -7,8 +7,10 @@ import {
   deleteDoc,
   doc,
   getDoc,
-  updateDoc
+  updateDoc,
+  addDoc              // ✅ FIX: Missing import added
 } from "firebase/firestore";
+
 import { useEffect, useState, useCallback } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../firebase";
@@ -47,7 +49,7 @@ function Posts() {
     }
   };
 
-  /* LIKE SYSTEM — FIXED */
+  /* LIKE SYSTEM */
   const toggleLike = async (postId, currentLikes = []) => {
     if (!user) return toast.error("Login required");
 
@@ -107,7 +109,7 @@ function Posts() {
     for (const d of snap.docs) {
       const post = { id: d.id, ...d.data() };
 
-      if (!Array.isArray(post.likes)) post.likes = []; // FIX
+      if (!Array.isArray(post.likes)) post.likes = [];
 
       if (post.userId) {
         const uSnap = await getDoc(doc(db, "users", post.userId));
@@ -150,7 +152,7 @@ function Posts() {
     setFilteredPosts(u);
   }, [branchFilter, yearFilter, searchText, posts]);
 
-  /* DELETE */
+  /* DELETE POST */
   const deletePost = async (postId, fileUrl) => {
     if (!window.confirm("Delete this post?")) return;
 
@@ -226,13 +228,9 @@ function Posts() {
           {/* PDF */}
           {post.fileType === "application/pdf" && (
             <div>
-              <a href={post.fileUrl} target="_blank" rel="noreferrer">
-                📄 View PDF
-              </a>
+              <a href={post.fileUrl} target="_blank" rel="noreferrer">📄 View PDF</a>
               <br />
-              <a href={post.fileUrl} download>
-                ⬇️ Download PDF
-              </a>
+              <a href={post.fileUrl} download>⬇️ Download PDF</a>
             </div>
           )}
 
@@ -248,22 +246,19 @@ function Posts() {
             </>
           )}
 
-          {/* OTHER FILE TYPES */}
+          {/* OTHER FILES */}
           {!post.fileType?.startsWith("image") &&
             !post.fileType?.startsWith("video") &&
             post.fileType !== "application/pdf" &&
             post.fileType !== "text/plain" &&
             post.fileUrl && <a href={post.fileUrl} download>⬇️ Download File</a>}
 
-          {/* LIKE BUTTON */}
-          <button
-            className="like-button"
-            onClick={() => toggleLike(post.id, post.likes)}
-          >
+          {/* LIKE */}
+          <button className="like-button" onClick={() => toggleLike(post.id, post.likes)}>
             ❤️ {post.likes?.length || 0}
           </button>
 
-          {/* DELETE ONLY BY OWNER */}
+          {/* DELETE BY OWNER */}
           {user?.uid === post.userId && (
             <button className="delete-btn" onClick={() => deletePost(post.id, post.fileUrl)}>
               Delete
