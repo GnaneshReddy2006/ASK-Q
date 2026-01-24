@@ -6,6 +6,8 @@ import { auth } from "./firebase";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+import { supabase } from "./supabaseClient"; // IMPORTANT: Ensure this import path is correct
+
 import ForgotPassword from "./pages/ForgotPassword";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
@@ -20,12 +22,27 @@ function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // =============== FIREBASE AUTH LISTENER ===============
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setLoading(false);
     });
     return () => unsub();
+  }, []);
+
+  // =============== WAKE SUPABASE ON APP LOAD (FIX MOBILE POST FAIL) ===============
+  useEffect(() => {
+    const wakeSupabase = async () => {
+      try {
+        await supabase.from("posts").select("id").limit(1);
+        console.log("🔵 Supabase is awake and ready");
+      } catch (err) {
+        console.log("❌ Supabase wake error:", err.message);
+      }
+    };
+
+    wakeSupabase();
   }, []);
 
   if (loading) {
