@@ -1,0 +1,305 @@
+/* =========================================================
+   GLOBAL RESET & BASE
+========================================================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI","Poppins",sans-serif;
+}
+
+body {
+  background: #0B0D12;
+  color: #FFFFFF;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   NAVBAR (Clean Professional)
+========================================================= */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 28px;
+  background: #FFFFFF;
+  border-bottom: 1px solid #E5E7EB;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-left,
+.nav-center,
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+/* LOGO */
+.logo {
+  font-size: 30px;
+  font-weight: 700;
+  color: #FF7A00;
+}
+
+/* NAV LINKS */
+.nav-link {
+  text-decoration: none;
+  color: #111827;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: 0.2s ease;
+}
+
+.nav-link:hover {
+  background: #FFF4EC;
+  color: #FF7A00;
+}
+
+/* =========================================================
+   CENTER CONTAINER
+========================================================= */
+.container {
+  min-height: calc(100vh - 80px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+/* =========================================================
+   CARD (Minimal Professional)
+========================================================= */
+.card {
+  width: 100%;
+  max-width: 480px;
+  background: #FFFFFF;
+  color: #111827;
+  border-radius: 12px;
+  padding: 26px;
+  border: 1px solid #E5E7EB;
+
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card h2 {
+  text-align: center;
+  font-size: 24px;
+}
+
+/* =========================================================
+   INPUTS
+========================================================= */
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid #D1D5DB;
+  font-size: 14px;
+  transition: 0.2s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: #FF7A00;
+}
+
+textarea {
+  min-height: 100px;
+}
+
+/* FILE INPUT */
+input[type="file"] {
+  border: 1px dashed #FF7A00;
+  background: #FFFFFF;
+}
+
+/* =========================================================
+   BUTTONS (Professional Minimal)
+========================================================= */
+button {
+  background: #e67913;
+  color: #000000;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.1s ease;
+  margin: 5px;
+}
+
+button:hover {
+  transform:translateY(-6px);
+  background: #ff7700;
+}
+
+button:disabled {
+  background: #9CA3AF;
+}
+
+/* =========================================================
+   POSTS
+========================================================= */
+.posts-container {
+  max-width: 900px;
+  margin: 30px auto;
+  padding: 20px;
+}
+
+.post-card {
+  width: 100%;
+  background: #FFFFFF;
+  color: #111827;
+  border-radius: 12px;
+  padding: 22px;
+  margin-bottom: 22px;
+  border: 1px solid #E5E7EB;
+}
+
+.post-card img {
+  width: 100%;
+  border-radius: 10px;
+  margin-top: 12px;
+}
+
+.post-card a {
+  color: #FF7A00;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.post-card a:hover {
+  text-decoration: underline;
+}
+
+/* =========================================================
+   FILTER BAR
+========================================================= */
+.filter-bar {
+  width: 100%;
+  max-width: 760px;
+  display: flex;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.filter-select,
+.filter-input {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #D1D5DB;
+}
+
+.filter-select:hover,
+.filter-input:hover {
+  border-color: #FF7A00;
+}
+
+/* =========================================================
+   COMMENTS
+========================================================= */
+.comment-box {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.comment {
+  margin-top: 6px;
+  padding-left: 10px;
+  border-left: 2px solid #FF7A00;
+  font-size: 14px;
+  color: #6B7280;
+}
+
+/* =========================================================
+   VIDEO
+========================================================= */
+.video-wrapper {
+  width: 100%;
+  margin-top: 12px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* =========================================================
+   ACTION BUTTONS
+========================================================= */
+.delete-account-btn,
+.delete-btn,
+.logout-btn {
+  background: #FF7A00;
+  color: #FFFFFF;
+  padding: 8px 14px;
+  border-radius: 6px;
+}
+
+.delete-account-btn:hover,
+.delete-btn:hover,
+.logout-btn:hover {
+  background: #E66A00;
+}
+
+/* =========================================================
+   MOBILE (Clean App Style)
+========================================================= */
+@media (max-width: 768px) {
+
+  .navbar {
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .nav-center {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .container {
+    padding: 14px;
+    align-items: flex-start;
+  }
+
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+
+  button {
+    padding: 12px;
+  }
+
+  .filter-bar {
+    flex-direction: column;
+  }
+
+.delete-account-btn {
+  font-size: 0; /* hide original text visually */
+  position: relative;
+}
+
+.delete-account-btn::after {
+  content: "DeleteAcnt"; /* NEW TEXT */
+  font-size: 14px;
+}
+
+
+  .delete-btn,
+  .logout-btn {
+    width: 100%;
+    margin-top: 8px;
+  }
+}
