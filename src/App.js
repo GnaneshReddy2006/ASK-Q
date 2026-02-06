@@ -59,7 +59,7 @@ function App() {
         {/* LEFT */}
         <div className="nav-left">
           <Link to={user ? "/posts" : "/login"} className="logo">
-            Q-Hive
+            ASK-Q
           </Link>
         </div>
 
